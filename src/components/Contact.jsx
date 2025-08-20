@@ -1,225 +1,168 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const Contact = () => {
-  const [status, setStatus] = useState("");
-  const [statusType, setStatusType] = useState(""); // "success" | "error" | ""
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
 
-  const onSubmit = async (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const name = (formData.get("name") || "").toString().trim();
-    const email = (formData.get("email") || "").toString().trim();
-    const message = (formData.get("message") || "").toString().trim();
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY;
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
 
-    if (name.length < 2) {
-      setStatusType("error");
-      setStatus("Please enter your full name (at least 2 characters).");
-      return;
-    }
-
-    const emailPattern = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
-    if (!emailPattern.test(email)) {
-      setStatusType("error");
-      setStatus("Please enter a valid email address.");
-      return;
-    }
-
-    if (message.length < 10) {
-      setStatusType("error");
-      setStatus(
-        "Please provide a bit more detail in your message (10+ characters)."
-      );
-      return;
-    }
-
-    setIsSubmitting(true);
-    try {
-      const response = await fetch("https://formspree.io/f/myzwvqog", {
-        method: "POST",
-        body: formData,
-        headers: { Accept: "application/json" },
-      });
-      let data = null;
-      try {
-        data = await response.json();
-      } catch {
-        // ignore JSON parse errors
-      }
-      if (response.ok) {
-        e.currentTarget.reset();
-        setStatusType("success");
-        setStatus("Message sent successfully!");
-        setTimeout(() => {
-          setStatus("");
-          setStatusType("");
-        }, 4000);
+      // Show floating bar when near bottom or contact section
+      if (
+        scrollPosition > windowHeight * 0.7 ||
+        scrollPosition > documentHeight - windowHeight * 1.5
+      ) {
+        setIsVisible(true);
       } else {
-        const apiError =
-          data && Array.isArray(data.errors) && data.errors.length > 0
-            ? data.errors[0].message
-            : null;
-        setStatusType("error");
-        setStatus(apiError || "Oops! Something went wrong.");
+        setIsVisible(false);
       }
-    } catch {
-      setStatusType("error");
-      setStatus("Error connecting to server.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
-    <section
-      id="contact"
-      className="border-t border-zinc-900/10 dark:border-white/10 bg-gradient-to-br from-amber-50 via-emerald-50 to-green-50 dark:from-amber-900 dark:via-emerald-900 dark:to-green-900 px-4 py-16"
-    >
-      <div className="mx-auto max-w-6xl">
-        <h2 className="text-center text-3xl font-bold text-emerald-700 dark:text-emerald-400">
-          Contact Me
-        </h2>
-        <p className="mt-2 text-zinc-700 dark:text-white/80">
-          Have a project or want to connect? Let's talk!
-        </p>
-        <div className="mt-8 grid grid-cols-1 gap-8 md:grid-cols-2">
-          <form
-            onSubmit={onSubmit}
-            noValidate
-            aria-busy={isSubmitting}
-            className="max-w-xl space-y-4 p-6 rounded-xl border-2 border-emerald-200 dark:border-emerald-800 bg-white/80 dark:bg-black/80 backdrop-blur-sm shadow-lg"
-          >
-            <input
-              name="_subject"
-              defaultValue="New message from portfolio contact form"
-              type="hidden"
-            />
-            <input
-              name="_gotcha"
-              type="text"
-              className="hidden"
-              tabIndex={-1}
-              autoComplete="off"
-            />
-            <div>
-              <label
-                htmlFor="contact-name"
-                className="mb-1 block text-sm font-medium text-zinc-700 dark:text-white/80"
-              >
-                Name
-              </label>
-              <input
-                name="name"
-                required
-                id="contact-name"
-                autoComplete="name"
-                placeholder="Your Name"
-                className="w-full rounded-lg border-2 border-emerald-300 dark:border-emerald-700 bg-white dark:bg-zinc-900 px-4 py-3 text-zinc-900 dark:text-white placeholder:text-zinc-500 dark:placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:focus:border-emerald-400 shadow-sm"
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="contact-email"
-                className="mb-1 block text-sm font-medium text-zinc-700 dark:text-white/80"
-              >
-                Email
-              </label>
-              <input
-                name="email"
-                type="email"
-                required
-                id="contact-email"
-                autoComplete="email"
-                placeholder="Your Email"
-                className="w-full rounded-lg border-2 border-emerald-300 dark:border-emerald-700 bg-white dark:bg-zinc-900 px-4 py-3 text-zinc-900 dark:text-white placeholder:text-zinc-500 dark:placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:focus:border-emerald-400 shadow-sm"
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="contact-message"
-                className="mb-1 block text-sm font-medium text-zinc-700 dark:text-white/80"
-              >
-                Message
-              </label>
-              <textarea
-                name="message"
-                required
-                id="contact-message"
-                placeholder="Your Message"
-                rows={5}
-                className="w-full resize-none rounded-lg border-2 border-emerald-300 dark:border-emerald-700 bg-white dark:bg-zinc-900 px-4 py-3 text-zinc-900 dark:text-white placeholder:text-zinc-500 dark:placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:focus:border-emerald-400 shadow-sm"
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full rounded-lg bg-gradient-to-r from-emerald-600 to-emerald-700 px-5 py-3 font-semibold text-white hover:from-emerald-500 hover:to-emerald-600 shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-75 disabled:cursor-not-allowed"
-            >
-              {isSubmitting ? (
-                <span className="inline-flex items-center gap-2">
-                  <i className="fa-solid fa-spinner animate-spin" /> Sending...
-                </span>
-              ) : (
-                "Send Message"
-              )}
-            </button>
-            {status && (
-              <p
-                role="status"
-                aria-live="polite"
-                className={`pt-2 ${
-                  statusType === "success" ? "text-emerald-400" : "text-red-400"
-                }`}
-              >
-                {status}
-              </p>
-            )}
-          </form>
+    <>
+      {/* Floating Contact Bar */}
+      <div
+        className={`fixed bottom-6 right-6 z-40 transition-all duration-500 ${
+          isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20"
+        }`}
+      >
+        <div className="flex flex-col gap-3">
+          {/* Quick Contact Button */}
+          <button className="group relative bg-emerald-600 hover:bg-emerald-500 text-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110">
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+              <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+            </svg>
+            <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-black text-white text-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
+              Send Email
+            </span>
+          </button>
 
-          <div className="self-start">
-            <div className="rounded-xl border border-zinc-900/10 dark:border-white/10 bg-zinc-900/5 dark:bg-white/5 p-6 text-zinc-800 dark:text-white/90 shadow">
-              <p className="mb-2 flex items-center gap-2">
-                <i className="fas fa-envelope" />
-                <a
-                  href="mailto:benalex8797@gmail.com?subject=Inquiry&body=Hello%20Benjamin%2C"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  benalex8797@gmail.com
-                </a>
-              </p>
-              <p className="mb-2 flex items-center gap-2">
-                <i className="fas fa-phone-alt" />
-                <a href="tel:+2348139788891">+234 813 788 891</a>
-              </p>
-              <p className="mb-2 flex items-center gap-2">
-                <i className="fab fa-whatsapp" />
-                <a
-                  href="https://wa.me/2348139788891"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  +234 813 788 891
-                </a>
-              </p>
-              <p className="flex items-center gap-2">
-                <i className="fas fa-map-marker-alt" /> Kaduna, Nigeria
-              </p>
-            </div>
-            <div className="mt-6 overflow-hidden rounded-xl border border-white/10 shadow">
-              <iframe
-                className="h-[350px] w-full"
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d126898.40830805936!2d7.3650503!3d10.4806526!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x105579d689a9b6d3%3A0x6e47b0892cf9aafa!2sPlot%20No%207%2C%20Kaduna-Abuja%20Express%20Way%2C%20Federal%20Housing%2C%20Kaduna%2C%20Nigeria!5e0!3m2!1sen!2sng!4v1716732050061!5m2!1sen!2sng"
-                frameBorder="0"
-                allowFullScreen
-                aria-hidden="false"
-                tabIndex={0}
-              />
-            </div>
-          </div>
+          {/* WhatsApp Quick Contact */}
+          <a
+            href="https://wa.me/2348139788891?text=Hello%20Benjamin%2C%20I%20saw%20your%20portfolio%20and%20would%20like%20to%20connect."
+            className="group relative bg-green-600 hover:bg-green-500 text-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110"
+            target="_blank"
+            rel="noopener"
+          >
+            <i className="fa-brands fa-whatsapp text-lg" />
+            <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-black text-white text-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
+              WhatsApp
+            </span>
+          </a>
         </div>
       </div>
-    </section>
+
+      {/* Main Contact Section */}
+      <section
+        id="contact"
+        className="border-y border-zinc-900/10 dark:border-white/10 bg-gradient-to-br from-emerald-50 via-teal-50 to-sky-50 dark:from-emerald-900 dark:via-teal-900 dark:to-sky-900 px-4 py-16"
+      >
+        <div className="mx-auto max-w-4xl text-center">
+          <h2 className="text-3xl font-bold text-emerald-600 dark:text-emerald-400 mb-8">
+            Let's Build Something Amazing Together
+          </h2>
+          <p className="text-lg text-zinc-700 dark:text-white/80 mb-8">
+            I'm passionate about creating exceptional digital experiences and
+            always excited to discuss new opportunities, innovative projects, or
+            simply connect with fellow developers and creative minds.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold text-emerald-700 dark:text-emerald-300">
+                Get In Touch
+              </h3>
+              <div className="space-y-3">
+                <a
+                  href="mailto:benalex8797@gmail.com"
+                  className="flex items-center justify-center gap-3 p-3 bg-white/80 dark:bg-slate-800/80 rounded-lg hover:bg-emerald-50 dark:hover:bg-slate-700/80 transition-colors duration-300 group"
+                >
+                  <svg
+                    className="w-5 h-5 text-emerald-600 group-hover:text-emerald-700"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                  </svg>
+                  <span className="text-zinc-700 dark:text-white/80 group-hover:text-emerald-700 dark:group-hover:text-emerald-300">
+                    benalex8797@gmail.com
+                  </span>
+                </a>
+
+                <a
+                  href="https://wa.me/2348139788891?text=Hello%20Benjamin%2C%20I%20saw%20your%20portfolio%20and%20would%20like%20to%20connect."
+                  className="flex items-center justify-center gap-3 p-3 bg-white/80 dark:bg-slate-800/80 rounded-lg hover:bg-emerald-50 dark:hover:bg-slate-700/80 transition-colors duration-300 group"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  <i className="fa-brands fa-whatsapp text-lg text-green-600 group-hover:text-green-700" />
+                  <span className="text-zinc-700 dark:text-white/80 group-hover:text-green-700 dark:group-hover:text-green-300">
+                    +234 813 978 8891
+                  </span>
+                </a>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold text-emerald-700 dark:text-emerald-300">
+                Connect & Collaborate
+              </h3>
+              <div className="flex justify-center gap-4">
+                <a
+                  href="https://github.com/Benalex8797"
+                  className="p-3 bg-white/80 dark:bg-slate-800/80 rounded-lg hover:bg-emerald-50 dark:hover:bg-slate-700/80 transition-all duration-300 hover:scale-110 group"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  <i className="fa-brands fa-github text-2xl text-zinc-700 dark:text-white/80 group-hover:text-emerald-600" />
+                </a>
+
+                <a
+                  href="https://www.linkedin.com/in/benjamin-alex-42b974350"
+                  className="p-3 bg-white/80 dark:bg-slate-800/80 rounded-lg hover:bg-emerald-50 dark:hover:bg-slate-700/80 transition-all duration-300 hover:scale-110 group"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  <i className="fa-brands fa-linkedin text-2xl text-zinc-700 dark:text-white/80 group-hover:text-emerald-600" />
+                </a>
+
+                <a
+                  href="https://twitter.com/Atamilliondoll1"
+                  className="p-3 bg-white/80 dark:bg-slate-800/80 rounded-lg hover:bg-emerald-50 dark:hover:bg-slate-700/80 transition-all duration-300 hover:scale-110 group"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  <i className="fa-brands fa-square-x-twitter text-2xl text-zinc-700 dark:text-white/80 group-hover:text-emerald-600" />
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white/80 dark:bg-slate-800/80 rounded-2xl p-6 backdrop-blur-sm">
+            <p className="text-zinc-700 dark:text-white/80 mb-4">
+              I'm currently available for exciting freelance opportunities,
+              full-time positions, and collaborative projects. Whether you have
+              a specific project in mind or just want to explore possibilities,
+              I'd love to hear from you.
+            </p>
+            <a
+              href="mailto:benalex8797@gmail.com"
+              className="inline-block bg-gradient-to-r from-emerald-600 to-emerald-500 text-white px-6 py-3 rounded-lg font-medium hover:from-emerald-500 hover:to-emerald-400 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105"
+            >
+              Start a Conversation
+            </a>
+          </div>
+        </div>
+      </section>
+    </>
   );
 };
 
