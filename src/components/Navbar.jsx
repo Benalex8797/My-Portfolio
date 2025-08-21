@@ -29,7 +29,7 @@ const Navbar = ({ isDark, toggleTheme }) => {
 
         <div className="flex items-center gap-4">
           {/* Theme Toggle Button */}
-          <button
+          {/* <button
             onClick={toggleTheme}
             className="relative rounded-full p-2 text-white/80 hover:text-emerald-400 transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 focus:ring-offset-black/80 dark:focus:ring-offset-zinc-900/80"
             aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
@@ -48,7 +48,7 @@ const Navbar = ({ isDark, toggleTheme }) => {
                 <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
               </svg>
             )}
-          </button>
+          </button> */}
 
           <button
             type="button"

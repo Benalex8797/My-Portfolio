@@ -19,6 +19,12 @@ const testimonials = [
     role: "UX Designer",
     text: '"A true professional! The designs were stunning and user-friendly."',
   },
+  {
+    img: "/assets/Miss Divine.jpeg",
+    name: "Divine-Favour .C. Ihezie",
+    role: "Admin Officer, The Hearth Business Consult Ltd.",
+  text: `"Exceeded our expectations in building our company's website. His professionalism, attention to detail, and technical expertise delivered a high-quality product that met our needs. We highly recommend his services."`,
+},
 ];
 
 const Testimonials = () => {
